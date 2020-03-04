@@ -1,0 +1,28 @@
+deltaW = V.fromList [6,4,0,4,164,160,160,128] :: V.Vector BNUBType
+weights = V.fromList [209,194,206,154,59,102,102,7] :: V.Vector BNUBType
+lastWU = 2 :: BNUBType
+deltaOred = V.foldl (.|.) 0 deltaW
+deltaIdx = findNextBitL deltaOred $ rotate lastWU 1
+mapped = V.map (\x -> deltaIdx .&. x) deltaW
+      
+      
+lastTU = 4 :: BNUBType
+deltaT = deltaThreshold' 151 166
+weights = V.fromList [3,3,4,5,1,4,5,1] :: V.Vector BNUBType
+nxtTU = bnuBSize - lastTU
+(deltaBot, deltaTop) = V.splitAt (fromIntegral nxtTU) deltaT
+fIVec = V.findIndex (RemainT /=)
+deltaTF = fromMaybe (-1) $ fIVec deltaTop
+deltaBF = fromMaybe (-1) $ fIVec deltaBot
+deltaIdx = bool (bool 0 deltaBF (deltaBF /= (-1))) (fromIntegral lastTU + deltaTF) (deltaTF /= (-1))
+updateVal = updateValue (weights V.! deltaIdx) (deltaT V.! deltaIdx)
+mapped = weights V.// [(deltaIdx, updateVal)]
+
+
+runEffect $ produceInput >-> queryBNUPipe >-> calculateDistance
+runEffect $ produceInput >-> queryBNUPipe >-> queryBNUPipe >-> queryBNUPipe >-> calculateDistance
+
+import qualified Pipes.Lift as PL
+let localCounter = PL.evalStateP 0 counter
+runEffect $ each "hi there" >-> localCounter >-> P.print
+

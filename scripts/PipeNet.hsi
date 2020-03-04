@@ -1,0 +1,12 @@
+:set -XOverloadedStrings
+
+-- import           Pipes.Network.TCP.Safe
+-- runSafeT . runEffect $ fromServe 4096 "127.0.0.1" "9000" >-> P.print
+import           Network.Socket    (Family (AF_INET), SockAddr (SockAddrInet),SocketOption (ReuseAddr),SocketType (Stream), bind, iNADDR_ANY,setSocketOption, socket)
+import           Pipes.Network.TCP
+import qualified Network.Socket as NS
+sock <- socket AF_INET Stream 0    -- create socket
+setSocketOption sock ReuseAddr 1   -- make socket immediately reusable - eases debugging.
+bind sock (SockAddrInet 4242 iNADDR_ANY)   -- listen on TCP port 4242.
+NS.listen sock 2
+Pi.runEffect $ fromSocket sock 4096 Pi.>-> Pi.print

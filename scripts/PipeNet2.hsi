@@ -1,0 +1,62 @@
+import           System.IO.Unsafe
+import           Control.Concurrent.Async
+import Control.Concurrent.MVar
+
+let pop = defaultParamsGekko 0
+let gnome = popBOrg pop'
+let nn = mkPhenotype gnome
+let basePort = "9000"
+gekkoRun basePort gnome
+let nodePort = mkPort basePort . unsafePerformIO $ randomRIO (0,1000)
+let responder = head . pushThrough nn . candleToLst
+-- ml <- async $ mainSocketLoop responder nodePort
+-- async $ gekkoProc nodePort
+-- wait ml
+let ml = mainSocketLoop responder nodePort
+let gg = gekkoProc nodePort
+-- unsafePerformIO $ wait ml
+unsafePerformIO $ concurrently ml gg
+
+dotPath = "src/NEAT/pop.dot"
+writeGenomeDot dotPath gnome
+
+
+gekkoRun "9000" nn
+bb = "{\"start\":\"2019-01-18T07:40:00.000Z\",\"open\":124.32,\"high\":124.91,\"low\":124.32,\"close\":124.34,\"vwp\":124.55682477211772,\"volume\":1567.0286725199994,\"trades\":341}" :: BSL.ByteString
+let responder = head . pushThrough nn . candleToLst
+cdl = fromJust $ readCandle bb
+responder cdl
+mainSocketLoop responder "9000"
+
+
+seed <- randomIO :: IO Int
+port <- newMVar 9000 :: IO (MVar Int)
+pop' <- gekkoLoop port 1 pop
+
+
+import Control.Concurrent.MVar
+port <- newMVar 9000 :: IO (MVar Int)
+let gnome = popBOrg pop
+score <- gekkoRun' port gnome
+
+
+p <- fromJust <$> popFromFile "assets/oo.txt"
+outputDots p
+popGen p
+
+
+
+p <- fromJust <$> popFromFile "assets/oo.txt"
+portVar <- newMVar 9000 :: IO (MVar Int)
+pop <- fromJust <$> popFromFile "assets/oo.txt"
+let gekkoConf = GekkoRunConfig "9000" (toDate "16 Apr 2016") (toDate "17 Apr 2016")
+let gnome = popBOrg pop
+-- score <- gekkoRun' portVar gekkoConf gnome
+let nn = mkPhenotype gnome
+nodePort <- mkPort portVar
+let gkConfUpdate = gekkoConf { port = nodePort }
+let responder = head . pushThrough nn
+let ml = mainSocketLoop responder nodePort
+let gg = gekkoProc gkConfUpdate
+mlT <- async ml
+ggT <- async gg

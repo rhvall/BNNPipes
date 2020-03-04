@@ -1,0 +1,103 @@
+# ----
+# ---- BNN-Pipes, Copyright (C) 20/Sep/2018
+# ---- Creator: rhvall
+# ---- This code comes with ABSOLUTELY NO WARRANTY; it is provided as "is".
+# ---- This is free software under GNU General Public License as published by
+# ---- the Free Software Foundation; either version 3 of the License, or
+# ---- (at your option) any later version. Check the LICENSE file at the root
+# ---- of this repository for more details.
+# ----
+
+name:                BNN-Pipes
+version:             0.1.0.0
+github:              "bitbucket.org/rhvall/bnn-pipes.git"
+license:             BSD3
+author:              "rhvall"
+maintainer:          "rhvall"
+copyright:           "2018 rhvall"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Binary Neural Networks using Pipes
+# synopsis:            Using Haskell Pipes, this project describes how to connect
+#                      Binary Processing Elements to clasify data
+# category:            Neural Networks
+
+description:         Please see the README on GitHub at <https://bitbucket.org/rhvall/bnn-pipes#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- pipes >= 4.3
+- pipes-concurrency >= 2.0
+- async >= 2.2.1
+- random >= 1.1
+- time >= 1.8
+- bytestring >= 0.1
+- vector >= 0.10 && <0.13
+- vector-algorithms >= 0.7
+- transformers >= 0.5
+- stm >= 2.4.0
+- containers >= 0.5
+- MonadRandom >= 0.5.1
+- monad-loops >= 0.4.3
+
+flags:
+# Enable/disable debugging:
+# https://stackoverflow.com/questions/16633123/compiler-switch-to-turn-debugging-messages-on-off
+    debug: # Or whatever name you want to give to the flag
+       description: Enable debug
+       manual: True
+       default: False
+
+when:
+     - condition: flag(debug)
+       cpp-options:  -DDEBUG
+       
+library:
+  source-dirs: src
+
+executables:
+  BNN-Pipes-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+# Uncomment to enable warnings
+    # - -Wall
+    # - -fwarn-tabs
+    dependencies:
+    - BNN-Pipes
+
+tests:
+  BNN-Pipes-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - BNN-Pipes
+    - HUnit >= 1.6.0.0
+    - QuickCheck >= 2.11.3
+    - smallcheck >= 1.1.5
+    - tasty >= 1.1
+    - tasty-quickcheck >= 0.10
+    - tasty-hunit >= 0.10
+    - tasty-smallcheck >= 0.8
+    - tasty-th >= 0.1.7
+    
+## stack commands
+# stack ghci --main-is  BNN-Pipes:test:BNN-Pipes-test --test --trace --ghci-options "-fexternal-interpreter -prof" --flag "BNN-Pipes:debug"
+# stack ghci --flag "BNN-Pipes:debug"
+#
+# Command to kill multiple processes at the same time:
+# kill $(ps ax | grep "git" | awk '{print $1}')
+#
+# Command to run and store logs
+# stack build --flag "BNN-Pipes:debug"
+# nohup stack exec BNN-Pipes-exe > ~/logs/bnn.txt 2>&1  &

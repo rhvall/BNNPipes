@@ -1,0 +1,30 @@
+seed = mkStdGen 0
+(seed', seed'') = split seed
+sinSample = evalRand (sampleSIN 5) seed
+prec = 2
+target = V.map (\(x,y) -> QueryVec (floatToVec x prec) (floatToVec y prec)) sinSample
+inputs = V.map inQV target
+input = V.head inputs
+outputs = V.map outQV target
+output = V.head outputs
+popInfo = PopInfo 12 4 10 128 20 40 10024
+bnp = evalRand (randomBNP16 (sizeBNU popInfo) (sizeLayer popInfo) (sizeNet popInfo) (sizePop popInfo)) seed'
+let iteration (pop, gen) = evolveMut fitnessNet target pop >>= \x -> return (x, gen + 1)
+((_, bnp'), _) = evalRand (iteration ((popInfo, bnp), 0)) seed'
+
+
+fitness = fitnessNet
+expected = target
+pop = (popInfo, bnp)
+
+(seed, seed') = split seed''
+
+let bnpScores = V.map (fitness expected) bnp
+let sorted = sortUsingVec bnp bnpScores
+pop' = evalRand (createPopByMut (V.head sorted) (sizePop popInfo)) seed
+
+bnn = V.head sorted
+-- bnn <- evalRandIO $ randomBNN16 12 4 10
+queryBNN16 input bnn
+
+(target, bnp) = mm

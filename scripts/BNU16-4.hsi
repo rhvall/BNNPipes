@@ -1,0 +1,18 @@
+let inSize = 11
+let passSize = inSize
+let popInfo = PopInfo inSize 21 16 128 10 12 50
+let popCreator = randomBNP16 (sizeBNU popInfo) (sizeLayer popInfo) (sizeNet popInfo) (sizePop popInfo)
+al <- evalRandIO popCreator
+bo <- evalRandIO popCreator
+input <- V.fromList . take inSize <$> getRandomRs (0, 4096) :: IO (V.Vector Word16)
+pass <- V.fromList . take inSize <$> getRandomRs (0, 4096) :: IO (V.Vector Word16)
+
+let packed = input V.++ pass
+let alOut = queryBNP16 packed bo
+let packed2 = V.map (V.++ pass) alOut
+let boOut = V.zipWith queryBNN16 packed2 al
+let cq = ComQuery input pass boOut
+V.length (boOut V.! 0)
+
+(al, bo) <- secComAB popInfo
+cq <- evalRandIO $ distComQ <$> queryPops 11 al bo

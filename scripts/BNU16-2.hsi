@@ -1,0 +1,21 @@
+(target, bnp) = mm
+seed = mkStdGen 0
+(seed', seed'') = split seed
+inputs = V.map inQV target
+input = V.head inputs
+outputs = V.map outQV target
+output = V.head outputs
+
+fitness = fitnessNet
+expected = target
+
+let bnpScores = V.map (fitness expected) bnp
+let sorted = sortUsingVec bnp bnpScores
+
+bnn = V.head sorted
+-- bnn <- evalRandIO $ randomBNN16 12 4 10
+queryBNN16 input bnn
+
+let rInput = V.map inQV target
+let scores = V.map (`queryBNP16` bnp) rInput
+bnp' = sortUsingVec bnp scores

@@ -1,0 +1,26 @@
+-- mnist <- loadFromPath "assets/t10k-labels-idx1-ubyte" "assets/t10k-images-idx3-ubyte"
+-- bmnist = binarizeDta mnist
+
+size = 4
+seed = mkStdGen 5
+seed0 = mkStdGen 4
+seed1 = snd $ next seed0
+seed2 = snd $ next seed1
+
+bnpVec0 = randomBNP seed0 size
+bnpVec1 = randomBNP seed1 size
+bnpVec2 = randomBNP seed2 size
+
+inQE = 9
+outQE = 81
+qElem = QueryElem inQE outQE
+bnpB = V.fromList [bnpVec0, bnpVec1, bnpVec2]
+
+findFittest bnpB qElem
+
+createPopulation seed size size
+
+fitt <- exampleEE 150 V.empty
+qElem0 = QueryElem 1 10
+fittest = findFittest fitt qElem
+queryBNP fittest 9
